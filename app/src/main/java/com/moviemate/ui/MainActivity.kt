@@ -64,7 +64,8 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_logout -> {
                     authViewModel.logout()
-                    navController.navigate(R.id.action_global_welcome)
+                    // Recreate the Activity to clear all ViewModels and reset state
+                    recreate()
                     true
                 }
                 else -> false
