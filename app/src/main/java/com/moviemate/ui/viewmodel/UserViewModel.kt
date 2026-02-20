@@ -3,8 +3,8 @@ package com.moviemate.ui.viewmodel
 import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.switchMap
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.auth.FirebaseAuth
 import com.moviemate.data.model.User
@@ -19,7 +19,7 @@ class UserViewModel : ViewModel() {
     // Reactive UID — updated after login/register so LiveData re-queries Room with the correct UID
     private val _currentUserId = MutableLiveData(auth.currentUser?.uid ?: "")
 
-    val currentUser: LiveData<User?> = Transformations.switchMap(_currentUserId) { uid ->
+    val currentUser: LiveData<User?> = _currentUserId.switchMap { uid ->
         if (uid.isEmpty()) MutableLiveData(null)
         else repository.getCurrentUserLive(uid)
     }
