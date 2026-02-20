@@ -121,14 +121,14 @@
                     android:paddingEnd="4dp"
                     android:text="@string/delete"
                     android:textAllCaps="false"
-                    android:textColor="@color/error"
+                    android:textColor="@color/primary_dark"
                     android:textSize="11sp"
                     app:cornerRadius="8dp"
                     app:icon="@drawable/ic_delete"
                     app:iconSize="12dp"
                     app:iconPadding="2dp"
-                    app:iconTint="@color/error"
-                    app:strokeColor="@color/error" />
+                    app:iconTint="@color/primary_dark"
+                    app:strokeColor="@color/primary_dark" />
 
             </LinearLayout>
 
