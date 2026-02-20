@@ -79,18 +79,21 @@ class ProfileFragment : Fragment() {
 
     private fun observeData() {
         userViewModel.currentUser.observe(viewLifecycleOwner) { user ->
-            user?.let {
-                binding.usernameText.text = it.username
-                binding.emailText.text = it.email
+            if (user != null) {
+                binding.usernameText.text = user.username.ifEmpty { "User" }
+                binding.emailText.text = user.email
 
-                if (it.profileImageUrl.isNotEmpty()) {
+                if (user.profileImageUrl.isNotEmpty()) {
                     Picasso.get()
-                        .load(it.profileImageUrl)
+                        .load(user.profileImageUrl)
                         .placeholder(R.drawable.circle_background)
                         .error(R.drawable.circle_background)
                         .transform(CircleTransform())
                         .into(binding.profileImage)
                 }
+            } else {
+                // User not in Room yet — trigger a refresh
+                userViewModel.refreshUser()
             }
         }
 

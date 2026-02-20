@@ -23,8 +23,21 @@ class UserRepository {
 
     suspend fun getCurrentUser(): User? {
         val uid = auth.currentUser?.uid ?: return null
-        return userDao.getUserByIdSync(uid)
-            ?: fetchAndCacheUser(uid)
+        val localUser = userDao.getUserByIdSync(uid)
+        // Always try to sync from Firestore to keep data fresh
+        val remoteUser = fetchAndCacheUser(uid)
+        return remoteUser ?: localUser ?: run {
+            // Fallback: build a minimal user from Firebase Auth data
+            val firebaseUser = auth.currentUser ?: return null
+            val fallback = User(
+                uid = uid,
+                username = firebaseUser.displayName ?: firebaseUser.email?.substringBefore("@") ?: "User",
+                email = firebaseUser.email ?: "",
+                profileImageUrl = ""
+            )
+            userDao.insertUser(fallback)
+            fallback
+        }
     }
 
     private suspend fun fetchAndCacheUser(uid: String): User? {
