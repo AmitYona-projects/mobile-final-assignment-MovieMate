@@ -19,7 +19,7 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField "String", "TMDB_API_KEY", "\"8830529bd582be0acd54130df87b97fd\""
+        buildConfigField "String", "TMDB_API_KEY", "\"eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI4ODMwNTI5YmQ1ODJiZTBhY2Q1NDEzMGRmODdiOTdmZCIsIm5iZiI6MTc3MTYwODAwNi43MjMsInN1YiI6IjY5OTg5N2M2ZTViZDAxNmFjMmE3MmI3NSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.osLoPljFjmGXwJkJeX_dKobaD_cX5whoVuiOsUFhzRE\""
     }
 
     buildTypes {

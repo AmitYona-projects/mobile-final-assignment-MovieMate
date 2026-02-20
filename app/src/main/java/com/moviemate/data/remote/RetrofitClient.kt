@@ -12,12 +12,8 @@ object RetrofitClient {
     private const val BASE_URL = "https://api.themoviedb.org/3/"
 
     private val authInterceptor = Interceptor { chain ->
-        val originalUrl = chain.request().url
-        val newUrl = originalUrl.newBuilder()
-            .addQueryParameter("api_key", BuildConfig.TMDB_API_KEY)
-            .build()
         val request = chain.request().newBuilder()
-            .url(newUrl)
+            .addHeader("Authorization", "Bearer ${BuildConfig.TMDB_API_KEY}")
             .addHeader("accept", "application/json")
             .build()
         chain.proceed(request)
