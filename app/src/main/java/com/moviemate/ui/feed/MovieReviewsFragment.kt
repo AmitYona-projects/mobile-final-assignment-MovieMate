@@ -11,7 +11,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.moviemate.R
 import com.moviemate.databinding.FragmentMovieReviewsBinding
-import com.moviemate.ui.adapter.ReviewFeedAdapter
+import com.moviemate.ui.adapter.SimpleReviewAdapter
 import com.moviemate.ui.viewmodel.ReviewViewModel
 import com.squareup.picasso.Picasso
 
@@ -21,7 +21,7 @@ class MovieReviewsFragment : Fragment() {
     private val binding get() = _binding!!
     private val reviewViewModel: ReviewViewModel by activityViewModels()
     private val args: MovieReviewsFragmentArgs by navArgs()
-    private lateinit var adapter: ReviewFeedAdapter
+    private lateinit var adapter: SimpleReviewAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -38,7 +38,7 @@ class MovieReviewsFragment : Fragment() {
         binding.backButton.setOnClickListener { findNavController().navigateUp() }
         binding.movieTitleToolbar.text = movieTitle
 
-        adapter = ReviewFeedAdapter()
+        adapter = SimpleReviewAdapter()
         binding.reviewsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.reviewsRecyclerView.adapter = adapter
 
