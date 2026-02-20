@@ -22,6 +22,7 @@ class EditProfileFragment : Fragment() {
     private val binding get() = _binding!!
     private val userViewModel: UserViewModel by activityViewModels()
     private var selectedImageUri: Uri? = null
+    private var fieldsInitialized = false
 
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
         uri?.let {
@@ -69,8 +70,12 @@ class EditProfileFragment : Fragment() {
     private fun observeData() {
         userViewModel.currentUser.observe(viewLifecycleOwner) { user ->
             user?.let {
-                binding.usernameEditText.setText(it.username)
-                binding.emailEditText.setText(it.email)
+                // Only pre-populate fields once on first load, never overwrite what the user typed
+                if (!fieldsInitialized) {
+                    fieldsInitialized = true
+                    binding.usernameEditText.setText(it.username)
+                    binding.emailEditText.setText(it.email)
+                }
 
                 if (it.profileImageUrl.isNotEmpty() && selectedImageUri == null) {
                     Picasso.get()
