@@ -1,5 +1,6 @@
 package com.moviemate.ui
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.ImageView
 import android.widget.TextView
@@ -9,6 +10,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
+import com.google.firebase.auth.FirebaseAuth
 import com.moviemate.R
 import com.moviemate.databinding.ActivityMainBinding
 import com.moviemate.ui.viewmodel.AuthViewModel
@@ -63,9 +65,15 @@ class MainActivity : AppCompatActivity() {
                     true
                 }
                 R.id.nav_logout -> {
+                    // Sign out immediately (synchronous) so WelcomeFragment sees isLoggedIn=false
+                    FirebaseAuth.getInstance().signOut()
+                    // Clean up Room in background
                     authViewModel.logout()
-                    // Recreate the Activity to clear all ViewModels and reset state
-                    recreate()
+                    // Restart Activity completely fresh — no saved back stack
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                    startActivity(intent)
+                    finish()
                     true
                 }
                 else -> false
