@@ -79,4 +79,16 @@
 
     </LinearLayout>
 
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/clearFiltersButton"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="4dp"
+        android:text="Clear Filters"
+        android:textAllCaps="false"
+        android:textColor="@color/gray_medium"
+        android:textSize="13sp" />
+
 </LinearLayout>

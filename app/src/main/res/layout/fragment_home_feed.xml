@@ -88,15 +88,63 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolbar" />
 
+    <HorizontalScrollView
+        android:id="@+id/activeFiltersScroll"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/spacing_medium"
+        android:layout_marginEnd="@dimen/spacing_medium"
+        android:layout_marginTop="4dp"
+        android:scrollbars="none"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/searchBar">
+
+        <LinearLayout
+            android:id="@+id/activeFiltersLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/genreFilterChip"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:layout_marginEnd="8dp"
+                android:visibility="gone"
+                app:chipBackgroundColor="@color/primary"
+                app:chipStrokeColor="@color/primary"
+                app:closeIconVisible="true"
+                app:closeIconTint="@color/white"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/ratingFilterChip"
+                android:layout_width="wrap_content"
+                android:layout_height="32dp"
+                android:visibility="gone"
+                app:chipBackgroundColor="@color/primary"
+                app:chipStrokeColor="@color/primary"
+                app:closeIconVisible="true"
+                app:closeIconTint="@color/white"
+                android:textColor="@color/white"
+                android:textSize="12sp" />
+
+        </LinearLayout>
+    </HorizontalScrollView>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="@dimen/spacing_small"
+        android:layout_marginTop="4dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/searchBar">
+        app:layout_constraintTop_toBottomOf="@id/activeFiltersScroll">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/reviewsRecyclerView"

@@ -124,6 +124,31 @@ class HomeFeedFragment : Fragment() {
         binding.reviewsRecyclerView.visibility = if (isEmpty) View.GONE else View.VISIBLE
     }
 
+    private fun updateFilterChips() {
+        val hasGenre = currentGenreFilter.isNotEmpty() &&
+                currentGenreFilter != getString(R.string.all_genres)
+        val hasRating = currentRatingFilter > 0
+
+        binding.genreFilterChip.visibility = if (hasGenre) View.VISIBLE else View.GONE
+        binding.ratingFilterChip.visibility = if (hasRating) View.VISIBLE else View.GONE
+        binding.activeFiltersScroll.visibility =
+            if (hasGenre || hasRating) View.VISIBLE else View.GONE
+
+        if (hasGenre) binding.genreFilterChip.text = currentGenreFilter
+        if (hasRating) binding.ratingFilterChip.text = "★ $currentRatingFilter+"
+
+        binding.genreFilterChip.setOnCloseIconClickListener {
+            currentGenreFilter = ""
+            applyFilters(reviewViewModel.allReviews.value ?: emptyList())
+            updateFilterChips()
+        }
+        binding.ratingFilterChip.setOnCloseIconClickListener {
+            currentRatingFilter = 0
+            applyFilters(reviewViewModel.allReviews.value ?: emptyList())
+            updateFilterChips()
+        }
+    }
+
     private fun showFilterDialog() {
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
@@ -138,6 +163,7 @@ class HomeFeedFragment : Fragment() {
         val ratingSpinner = dialog.findViewById<Spinner>(R.id.ratingSpinner)
         val applyButton = dialog.findViewById<MaterialButton>(R.id.applyFilterButton)
         val cancelButton = dialog.findViewById<MaterialButton>(R.id.cancelButton)
+        val clearButton = dialog.findViewById<MaterialButton>(R.id.clearFiltersButton)
 
         val genres = resources.getStringArray(R.array.genres)
         genreSpinner.adapter = ArrayAdapter(
@@ -149,25 +175,34 @@ class HomeFeedFragment : Fragment() {
             requireContext(), android.R.layout.simple_spinner_dropdown_item, ratings
         )
 
+        // Pre-select current filters
+        val genreIndex = genres.indexOf(currentGenreFilter).takeIf { it >= 0 } ?: 0
+        genreSpinner.setSelection(genreIndex)
+
+        val ratingIndex = when (currentRatingFilter) {
+            5 -> 1; 4 -> 2; 3 -> 3; 2 -> 4; 1 -> 5; else -> 0
+        }
+        ratingSpinner.setSelection(ratingIndex)
+
         applyButton.setOnClickListener {
-            val selectedGenre = genreSpinner.selectedItem.toString()
-            val selectedRatingIndex = ratingSpinner.selectedItemPosition
-
-            currentGenreFilter = selectedGenre
-            currentRatingFilter = when (selectedRatingIndex) {
-                1 -> 5
-                2 -> 4
-                3 -> 3
-                4 -> 2
-                5 -> 1
-                else -> 0
+            currentGenreFilter = genreSpinner.selectedItem.toString()
+            currentRatingFilter = when (ratingSpinner.selectedItemPosition) {
+                1 -> 5; 2 -> 4; 3 -> 3; 4 -> 2; 5 -> 1; else -> 0
             }
-
             applyFilters(reviewViewModel.allReviews.value ?: emptyList())
+            updateFilterChips()
             dialog.dismiss()
         }
 
-        cancelButton.setOnClickListener {
+        cancelButton.setOnClickListener { dialog.dismiss() }
+
+        clearButton.setOnClickListener {
+            genreSpinner.setSelection(0)
+            ratingSpinner.setSelection(0)
+            currentGenreFilter = ""
+            currentRatingFilter = 0
+            applyFilters(reviewViewModel.allReviews.value ?: emptyList())
+            updateFilterChips()
             dialog.dismiss()
         }
 
