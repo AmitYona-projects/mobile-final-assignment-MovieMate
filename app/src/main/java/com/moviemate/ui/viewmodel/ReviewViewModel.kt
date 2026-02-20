@@ -5,7 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.map
 import com.moviemate.data.model.Movie
+import com.moviemate.data.model.MovieGroup
 import com.moviemate.data.model.Review
 import com.moviemate.data.repository.MovieRepository
 import com.moviemate.data.repository.ReviewRepository
@@ -20,6 +22,22 @@ class ReviewViewModel : ViewModel() {
 
     val allReviews: LiveData<List<Review>> = reviewRepository.getAllReviewsLocal()
     val userReviews: LiveData<List<Review>> = reviewRepository.getUserReviewsLocal()
+
+    val groupedMovies: LiveData<List<MovieGroup>> = allReviews.map { reviews ->
+        reviews.groupBy { it.movieTitle }
+            .map { (_, reviewList) ->
+                MovieGroup(
+                    movieTitle = reviewList.first().movieTitle,
+                    moviePosterUrl = reviewList.first().moviePosterUrl,
+                    movieGenres = reviewList.first().movieGenres,
+                    averageRating = reviewList.map { it.rating }.average().toFloat(),
+                    reviewCount = reviewList.size,
+                    latestTimestamp = reviewList.maxOf { it.timestamp },
+                    reviews = reviewList.sortedByDescending { it.timestamp }
+                )
+            }
+            .sortedByDescending { it.latestTimestamp }
+    }
 
     private val _isLoading = MutableLiveData(false)
     val isLoading: LiveData<Boolean> = _isLoading

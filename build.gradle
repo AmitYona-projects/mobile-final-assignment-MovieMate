@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        agp_version = '8.3.2'
+        agp_version = '8.13.2'
         kotlin_version = '1.9.10'
         nav_version = '2.7.6'
         room_version = '2.6.1'

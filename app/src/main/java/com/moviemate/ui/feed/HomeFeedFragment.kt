@@ -16,10 +16,11 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
 import com.moviemate.R
+import com.moviemate.data.model.MovieGroup
 import com.moviemate.data.model.Review
 import com.moviemate.databinding.FragmentHomeFeedBinding
 import com.moviemate.ui.MainActivity
-import com.moviemate.ui.adapter.ReviewFeedAdapter
+import com.moviemate.ui.adapter.MovieFeedAdapter
 import com.moviemate.ui.viewmodel.ReviewViewModel
 
 class HomeFeedFragment : Fragment() {
@@ -27,11 +28,12 @@ class HomeFeedFragment : Fragment() {
     private var _binding: FragmentHomeFeedBinding? = null
     private val binding get() = _binding!!
     private val reviewViewModel: ReviewViewModel by activityViewModels()
-    private lateinit var adapter: ReviewFeedAdapter
+    private lateinit var adapter: MovieFeedAdapter
 
     private var currentGenreFilter: String = ""
     private var currentRatingFilter: Int = 0
     private var currentSearchQuery: String = ""
+    private var allMovieGroups: List<MovieGroup> = emptyList()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -50,7 +52,10 @@ class HomeFeedFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        adapter = ReviewFeedAdapter()
+        adapter = MovieFeedAdapter { group ->
+            val action = HomeFeedFragmentDirections.actionHomeToMovieReviews(group.movieTitle)
+            findNavController().navigate(action)
+        }
         binding.reviewsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.reviewsRecyclerView.adapter = adapter
     }
@@ -61,7 +66,7 @@ class HomeFeedFragment : Fragment() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
             override fun afterTextChanged(s: Editable?) {
                 currentSearchQuery = s.toString().trim()
-                applyFilters(reviewViewModel.allReviews.value ?: emptyList())
+                applyFilters()
             }
         })
     }
@@ -89,8 +94,9 @@ class HomeFeedFragment : Fragment() {
     }
 
     private fun observeData() {
-        reviewViewModel.allReviews.observe(viewLifecycleOwner) { reviews ->
-            applyFilters(reviews)
+        reviewViewModel.groupedMovies.observe(viewLifecycleOwner) { groups ->
+            allMovieGroups = groups
+            applyFilters()
         }
 
         reviewViewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
@@ -98,8 +104,8 @@ class HomeFeedFragment : Fragment() {
         }
     }
 
-    private fun applyFilters(reviews: List<Review>) {
-        var filtered = reviews
+    private fun applyFilters() {
+        var filtered = allMovieGroups
 
         if (currentSearchQuery.isNotEmpty()) {
             filtered = filtered.filter {
@@ -114,7 +120,7 @@ class HomeFeedFragment : Fragment() {
         }
 
         if (currentRatingFilter > 0) {
-            filtered = filtered.filter { it.rating >= currentRatingFilter }
+            filtered = filtered.filter { it.averageRating >= currentRatingFilter }
         }
 
         adapter.submitList(filtered)
@@ -189,7 +195,7 @@ class HomeFeedFragment : Fragment() {
             currentRatingFilter = when (ratingSpinner.selectedItemPosition) {
                 1 -> 5; 2 -> 4; 3 -> 3; 4 -> 2; 5 -> 1; else -> 0
             }
-            applyFilters(reviewViewModel.allReviews.value ?: emptyList())
+            applyFilters()
             updateFilterChips()
             dialog.dismiss()
         }
@@ -201,7 +207,7 @@ class HomeFeedFragment : Fragment() {
             ratingSpinner.setSelection(0)
             currentGenreFilter = ""
             currentRatingFilter = 0
-            applyFilters(reviewViewModel.allReviews.value ?: emptyList())
+            applyFilters()
             updateFilterChips()
             dialog.dismiss()
         }
