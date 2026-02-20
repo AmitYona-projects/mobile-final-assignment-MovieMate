@@ -145,12 +145,12 @@ class HomeFeedFragment : Fragment() {
 
         binding.genreFilterChip.setOnCloseIconClickListener {
             currentGenreFilter = ""
-            applyFilters(reviewViewModel.allReviews.value ?: emptyList())
+            applyFilters()
             updateFilterChips()
         }
         binding.ratingFilterChip.setOnCloseIconClickListener {
             currentRatingFilter = 0
-            applyFilters(reviewViewModel.allReviews.value ?: emptyList())
+            applyFilters()
             updateFilterChips()
         }
     }
