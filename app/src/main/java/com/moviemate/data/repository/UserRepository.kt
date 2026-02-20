@@ -16,8 +16,7 @@ class UserRepository {
     private val storage = FirebaseStorage.getInstance()
     private val userDao = MovieMateApplication.instance.database.userDao()
 
-    fun getCurrentUserLive(): LiveData<User?> {
-        val uid = auth.currentUser?.uid ?: ""
+    fun getCurrentUserLive(uid: String = auth.currentUser?.uid ?: ""): LiveData<User?> {
         return userDao.getUserById(uid)
     }
 

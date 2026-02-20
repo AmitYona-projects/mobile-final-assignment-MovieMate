@@ -11,12 +11,14 @@ import androidx.navigation.fragment.findNavController
 import com.moviemate.R
 import com.moviemate.databinding.FragmentRegisterBinding
 import com.moviemate.ui.viewmodel.AuthViewModel
+import com.moviemate.ui.viewmodel.UserViewModel
 
 class RegisterFragment : Fragment() {
 
     private var _binding: FragmentRegisterBinding? = null
     private val binding get() = _binding!!
     private val authViewModel: AuthViewModel by activityViewModels()
+    private val userViewModel: UserViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -56,6 +58,7 @@ class RegisterFragment : Fragment() {
                     Toast.makeText(requireContext(),
                         "Registration successful! Welcome to MovieMate 🎬",
                         Toast.LENGTH_LONG).show()
+                    userViewModel.notifyUserLoggedIn()
                     authViewModel.clearResults()
                     findNavController().navigate(R.id.action_register_to_home)
                 }

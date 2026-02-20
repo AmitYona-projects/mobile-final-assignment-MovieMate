@@ -11,12 +11,14 @@ import androidx.navigation.fragment.findNavController
 import com.moviemate.R
 import com.moviemate.databinding.FragmentLoginBinding
 import com.moviemate.ui.viewmodel.AuthViewModel
+import com.moviemate.ui.viewmodel.UserViewModel
 
 class LoginFragment : Fragment() {
 
     private var _binding: FragmentLoginBinding? = null
     private val binding get() = _binding!!
     private val authViewModel: AuthViewModel by activityViewModels()
+    private val userViewModel: UserViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -52,6 +54,7 @@ class LoginFragment : Fragment() {
         authViewModel.loginResult.observe(viewLifecycleOwner) { result ->
             result?.let {
                 it.onSuccess {
+                    userViewModel.notifyUserLoggedIn()
                     findNavController().navigate(R.id.action_login_to_home)
                     authViewModel.clearResults()
                 }
