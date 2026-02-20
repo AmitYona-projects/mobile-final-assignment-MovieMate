@@ -9,6 +9,7 @@ import com.moviemate.R
 import com.moviemate.data.model.MovieGroup
 import com.moviemate.databinding.ItemMovieFeedBinding
 import com.squareup.picasso.Picasso
+import android.view.animation.DecelerateInterpolator
 
 class MovieFeedAdapter(
     private val onMovieClick: (MovieGroup) -> Unit
@@ -32,7 +33,20 @@ class MovieFeedAdapter(
                     .into(binding.moviePosterImage)
             }
 
-            binding.root.setOnClickListener { onMovieClick(group) }
+            binding.root.setOnClickListener {
+                // Subtle scale-down then scale-up before navigating
+                it.animate()
+                    .scaleX(0.97f).scaleY(0.97f)
+                    .setDuration(100)
+                    .setInterpolator(DecelerateInterpolator())
+                    .withEndAction {
+                        it.animate()
+                            .scaleX(1f).scaleY(1f)
+                            .setDuration(100)
+                            .withEndAction { onMovieClick(group) }
+                            .start()
+                    }.start()
+            }
         }
     }
 
