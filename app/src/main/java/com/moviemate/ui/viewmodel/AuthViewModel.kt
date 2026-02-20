@@ -27,18 +27,28 @@ class AuthViewModel : ViewModel() {
     fun login(email: String, password: String) {
         _isLoading.value = true
         viewModelScope.launch {
-            val result = repository.login(email, password)
-            _loginResult.value = result
-            _isLoading.value = false
+            try {
+                val result = repository.login(email, password)
+                _loginResult.value = result
+            } catch (e: Exception) {
+                _loginResult.value = Result.failure(e)
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
     fun register(email: String, password: String, username: String) {
         _isLoading.value = true
         viewModelScope.launch {
-            val result = repository.register(email, password, username)
-            _registerResult.value = result
-            _isLoading.value = false
+            try {
+                val result = repository.register(email, password, username)
+                _registerResult.value = result
+            } catch (e: Exception) {
+                _registerResult.value = Result.failure(e)
+            } finally {
+                _isLoading.value = false
+            }
         }
     }
 
