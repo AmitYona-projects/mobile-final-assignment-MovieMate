@@ -131,6 +131,12 @@ class CreateReviewFragment : Fragment() {
             }
         }
 
+        reviewViewModel.searchError.observe(viewLifecycleOwner) { error ->
+            error?.let {
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+            }
+        }
+
         reviewViewModel.selectedMovie.observe(viewLifecycleOwner) { movie ->
             movie?.let {
                 binding.selectedMovieTitle.text = it.toString()

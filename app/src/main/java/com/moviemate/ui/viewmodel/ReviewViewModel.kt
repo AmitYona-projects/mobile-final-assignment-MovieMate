@@ -27,6 +27,9 @@ class ReviewViewModel : ViewModel() {
     private val _movieSuggestions = MutableLiveData<List<Movie>>()
     val movieSuggestions: LiveData<List<Movie>> = _movieSuggestions
 
+    private val _searchError = MutableLiveData<String?>()
+    val searchError: LiveData<String?> = _searchError
+
     private val _selectedMovie = MutableLiveData<Movie?>()
     val selectedMovie: LiveData<Movie?> = _selectedMovie
 
@@ -66,6 +69,9 @@ class ReviewViewModel : ViewModel() {
             val result = movieRepository.searchMovies(query)
             result.onSuccess { movies ->
                 _movieSuggestions.value = movies.take(8)
+            }
+            result.onFailure { e ->
+                _searchError.value = "Movie search failed: ${e.message}"
             }
         }
     }
@@ -136,5 +142,6 @@ class ReviewViewModel : ViewModel() {
         _deleteResult.value = null
         _selectedMovie.value = null
         _movieGenresText.value = ""
+        _searchError.value = null
     }
 }
