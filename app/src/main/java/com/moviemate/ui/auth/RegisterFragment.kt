@@ -53,13 +53,23 @@ class RegisterFragment : Fragment() {
         authViewModel.registerResult.observe(viewLifecycleOwner) { result ->
             result?.let {
                 it.onSuccess {
-                    findNavController().navigate(R.id.action_register_to_home)
+                    Toast.makeText(requireContext(),
+                        "Registration successful! Welcome to MovieMate 🎬",
+                        Toast.LENGTH_LONG).show()
                     authViewModel.clearResults()
+                    findNavController().navigate(R.id.action_register_to_home)
                 }
                 it.onFailure { e ->
-                    Toast.makeText(requireContext(),
-                        e.message ?: getString(R.string.error_register_failed),
-                        Toast.LENGTH_SHORT).show()
+                    val msg = when {
+                        e.message?.contains("email address is already in use") == true ->
+                            "This email is already registered. Please login instead."
+                        e.message?.contains("password is invalid") == true ->
+                            "Password must be at least 6 characters."
+                        e.message?.contains("network") == true ->
+                            "No internet connection. Please check your network."
+                        else -> e.message ?: getString(R.string.error_register_failed)
+                    }
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
                     authViewModel.clearResults()
                 }
             }

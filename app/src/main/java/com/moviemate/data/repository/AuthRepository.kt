@@ -6,6 +6,7 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.moviemate.MovieMateApplication
 import com.moviemate.data.model.User
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeout
 
 class AuthRepository {
 
@@ -21,9 +22,11 @@ class AuthRepository {
 
     suspend fun login(email: String, password: String): Result<FirebaseUser> {
         return try {
-            val result = auth.signInWithEmailAndPassword(email, password).await()
+            val result = withTimeout(15_000) {
+                auth.signInWithEmailAndPassword(email, password).await()
+            }
             result.user?.let { firebaseUser ->
-                fetchAndCacheUser(firebaseUser.uid)
+                try { fetchAndCacheUser(firebaseUser.uid) } catch (_: Exception) { }
                 Result.success(firebaseUser)
             } ?: Result.failure(Exception("Login failed"))
         } catch (e: Exception) {
@@ -33,7 +36,9 @@ class AuthRepository {
 
     suspend fun register(email: String, password: String, username: String): Result<FirebaseUser> {
         return try {
-            val result = auth.createUserWithEmailAndPassword(email, password).await()
+            val result = withTimeout(15_000) {
+                auth.createUserWithEmailAndPassword(email, password).await()
+            }
             result.user?.let { firebaseUser ->
                 val user = User(
                     uid = firebaseUser.uid,
@@ -41,9 +46,14 @@ class AuthRepository {
                     email = email,
                     profileImageUrl = ""
                 )
-                firestore.collection("users").document(firebaseUser.uid)
-                    .set(user.toMap()).await()
                 userDao.insertUser(user)
+                // Save to Firestore without blocking registration success
+                try {
+                    withTimeout(10_000) {
+                        firestore.collection("users").document(firebaseUser.uid)
+                            .set(user.toMap()).await()
+                    }
+                } catch (_: Exception) { }
                 Result.success(firebaseUser)
             } ?: Result.failure(Exception("Registration failed"))
         } catch (e: Exception) {
