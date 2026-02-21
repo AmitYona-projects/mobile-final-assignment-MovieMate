@@ -15,9 +15,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.button.MaterialButton
+import com.google.android.material.chip.Chip
+import com.google.android.material.chip.ChipGroup
 import com.moviemate.R
 import com.moviemate.data.model.MovieGroup
-import com.moviemate.data.model.Review
 import com.moviemate.databinding.FragmentHomeFeedBinding
 import com.moviemate.ui.MainActivity
 import com.moviemate.ui.adapter.MovieFeedAdapter
@@ -30,7 +31,7 @@ class HomeFeedFragment : Fragment() {
     private val reviewViewModel: ReviewViewModel by activityViewModels()
     private lateinit var adapter: MovieFeedAdapter
 
-    private var currentGenreFilter: String = ""
+    private var currentGenreFilters: MutableSet<String> = mutableSetOf()
     private var currentRatingFilter: Int = 0
     private var currentSearchQuery: String = ""
     private var allMovieGroups: List<MovieGroup> = emptyList()
@@ -113,9 +114,11 @@ class HomeFeedFragment : Fragment() {
             }
         }
 
-        if (currentGenreFilter.isNotEmpty() && currentGenreFilter != getString(R.string.all_genres)) {
-            filtered = filtered.filter {
-                it.movieGenres.contains(currentGenreFilter, ignoreCase = true)
+        if (currentGenreFilters.isNotEmpty()) {
+            filtered = filtered.filter { group ->
+                currentGenreFilters.any { genre ->
+                    group.movieGenres.contains(genre, ignoreCase = true)
+                }
             }
         }
 
@@ -131,8 +134,7 @@ class HomeFeedFragment : Fragment() {
     }
 
     private fun updateFilterChips() {
-        val hasGenre = currentGenreFilter.isNotEmpty() &&
-                currentGenreFilter != getString(R.string.all_genres)
+        val hasGenre = currentGenreFilters.isNotEmpty()
         val hasRating = currentRatingFilter > 0
 
         binding.genreFilterChip.visibility = if (hasGenre) View.VISIBLE else View.GONE
@@ -140,11 +142,11 @@ class HomeFeedFragment : Fragment() {
         binding.activeFiltersScroll.visibility =
             if (hasGenre || hasRating) View.VISIBLE else View.GONE
 
-        if (hasGenre) binding.genreFilterChip.text = currentGenreFilter
+        if (hasGenre) binding.genreFilterChip.text = currentGenreFilters.joinToString(", ")
         if (hasRating) binding.ratingFilterChip.text = "★ $currentRatingFilter+"
 
         binding.genreFilterChip.setOnCloseIconClickListener {
-            currentGenreFilter = ""
+            currentGenreFilters.clear()
             applyFilters()
             updateFilterChips()
         }
@@ -165,25 +167,29 @@ class HomeFeedFragment : Fragment() {
             ViewGroup.LayoutParams.WRAP_CONTENT
         )
 
-        val genreSpinner = dialog.findViewById<Spinner>(R.id.genreSpinner)
+        val genreChipGroup = dialog.findViewById<ChipGroup>(R.id.genreChipGroup)
         val ratingSpinner = dialog.findViewById<Spinner>(R.id.ratingSpinner)
         val applyButton = dialog.findViewById<MaterialButton>(R.id.applyFilterButton)
         val cancelButton = dialog.findViewById<MaterialButton>(R.id.cancelButton)
         val clearButton = dialog.findViewById<MaterialButton>(R.id.clearFiltersButton)
 
-        val genres = resources.getStringArray(R.array.genres)
-        genreSpinner.adapter = ArrayAdapter(
-            requireContext(), android.R.layout.simple_spinner_dropdown_item, genres
-        )
+        // Build genre chips (skip "All Genres" entry)
+        val genres = resources.getStringArray(R.array.genres).drop(1)
+        genres.forEach { genre ->
+            val chip = Chip(requireContext()).apply {
+                text = genre
+                isCheckable = true
+                isChecked = currentGenreFilters.contains(genre)
+                setChipBackgroundColorResource(R.color.selector_chip_background)
+                setTextColor(resources.getColorStateList(R.color.selector_chip_text, null))
+            }
+            genreChipGroup.addView(chip)
+        }
 
         val ratings = resources.getStringArray(R.array.ratings)
         ratingSpinner.adapter = ArrayAdapter(
             requireContext(), android.R.layout.simple_spinner_dropdown_item, ratings
         )
-
-        // Pre-select current filters
-        val genreIndex = genres.indexOf(currentGenreFilter).takeIf { it >= 0 } ?: 0
-        genreSpinner.setSelection(genreIndex)
 
         val ratingIndex = when (currentRatingFilter) {
             5 -> 1; 4 -> 2; 3 -> 3; 2 -> 4; 1 -> 5; else -> 0
@@ -191,7 +197,11 @@ class HomeFeedFragment : Fragment() {
         ratingSpinner.setSelection(ratingIndex)
 
         applyButton.setOnClickListener {
-            currentGenreFilter = genreSpinner.selectedItem.toString()
+            currentGenreFilters = (0 until genreChipGroup.childCount)
+                .map { genreChipGroup.getChildAt(it) as Chip }
+                .filter { it.isChecked }
+                .map { it.text.toString() }
+                .toMutableSet()
             currentRatingFilter = when (ratingSpinner.selectedItemPosition) {
                 1 -> 5; 2 -> 4; 3 -> 3; 4 -> 2; 5 -> 1; else -> 0
             }
@@ -203,9 +213,7 @@ class HomeFeedFragment : Fragment() {
         cancelButton.setOnClickListener { dialog.dismiss() }
 
         clearButton.setOnClickListener {
-            genreSpinner.setSelection(0)
-            ratingSpinner.setSelection(0)
-            currentGenreFilter = ""
+            currentGenreFilters.clear()
             currentRatingFilter = 0
             applyFilters()
             updateFilterChips()
