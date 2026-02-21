@@ -91,6 +91,13 @@
         <argument
             android:name="movieTitle"
             app:argType="string" />
+        <action
+            android:id="@+id/action_movieReviews_to_createReview"
+            app:destination="@id/createReviewFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right" />
     </fragment>
 
     <fragment
@@ -147,7 +154,20 @@
         android:id="@+id/createReviewFragment"
         android:name="com.moviemate.ui.review.CreateReviewFragment"
         android:label="Create Review"
-        tools:layout="@layout/fragment_create_review" />
+        tools:layout="@layout/fragment_create_review">
+        <argument
+            android:name="preselectedMovieTitle"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="preselectedMoviePosterUrl"
+            app:argType="string"
+            android:defaultValue="" />
+        <argument
+            android:name="preselectedMovieGenres"
+            app:argType="string"
+            android:defaultValue="" />
+    </fragment>
 
     <fragment
         android:id="@+id/editReviewFragment"

@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
 import com.moviemate.R
 import com.moviemate.databinding.FragmentCreateReviewBinding
 import com.moviemate.ui.adapter.MovieSuggestionAdapter
@@ -25,6 +26,7 @@ class CreateReviewFragment : Fragment() {
     private var _binding: FragmentCreateReviewBinding? = null
     private val binding get() = _binding!!
     private val reviewViewModel: ReviewViewModel by activityViewModels()
+    private val args: CreateReviewFragmentArgs by navArgs()
     private lateinit var movieAdapter: MovieSuggestionAdapter
     private var selectedRating = 0
     private var selectedImageUri: Uri? = null
@@ -51,6 +53,16 @@ class CreateReviewFragment : Fragment() {
         setupRating()
         setupListeners()
         observeData()
+
+        val preselectedTitle = args.preselectedMovieTitle
+        if (preselectedTitle.isNotEmpty()) {
+            reviewViewModel.preselectMovieFromGroup(
+                movieTitle = preselectedTitle,
+                moviePosterUrl = args.preselectedMoviePosterUrl,
+                movieGenres = args.preselectedMovieGenres
+            )
+            binding.movieSearchAutoComplete.setText(preselectedTitle)
+        }
     }
 
     private fun setupMovieSearch() {

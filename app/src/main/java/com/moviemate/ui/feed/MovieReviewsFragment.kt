@@ -10,6 +10,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.moviemate.R
+import com.moviemate.data.model.MovieGroup
 import com.moviemate.databinding.FragmentMovieReviewsBinding
 import com.moviemate.ui.adapter.SimpleReviewAdapter
 import com.moviemate.ui.viewmodel.ReviewViewModel
@@ -22,6 +23,7 @@ class MovieReviewsFragment : Fragment() {
     private val reviewViewModel: ReviewViewModel by activityViewModels()
     private val args: MovieReviewsFragmentArgs by navArgs()
     private lateinit var adapter: SimpleReviewAdapter
+    private var currentGroup: MovieGroup? = null
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -38,12 +40,24 @@ class MovieReviewsFragment : Fragment() {
         binding.backButton.setOnClickListener { findNavController().navigateUp() }
         binding.movieTitleToolbar.text = movieTitle
 
+        binding.fabCreateReview.setOnClickListener {
+            val group = currentGroup ?: return@setOnClickListener
+            val action = MovieReviewsFragmentDirections
+                .actionMovieReviewsToCreateReview(
+                    preselectedMovieTitle = group.movieTitle,
+                    preselectedMoviePosterUrl = group.moviePosterUrl,
+                    preselectedMovieGenres = group.movieGenres
+                )
+            findNavController().navigate(action)
+        }
+
         adapter = SimpleReviewAdapter()
         binding.reviewsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.reviewsRecyclerView.adapter = adapter
 
         reviewViewModel.groupedMovies.observe(viewLifecycleOwner) { groups ->
             val group = groups.find { it.movieTitle == movieTitle } ?: return@observe
+            currentGroup = group
 
             binding.movieTitleText.text = group.movieTitle
             binding.movieGenresText.text = group.movieGenres

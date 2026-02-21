@@ -154,6 +154,13 @@ class ReviewViewModel : ViewModel() {
         }
     }
 
+    fun preselectMovieFromGroup(movieTitle: String, moviePosterUrl: String, movieGenres: String) {
+        val posterPath = if (moviePosterUrl.startsWith("https://image.tmdb.org/t/p/w500"))
+            moviePosterUrl.removePrefix("https://image.tmdb.org/t/p/w500") else null
+        _selectedMovie.value = Movie(title = movieTitle, posterPath = posterPath)
+        _movieGenresText.value = movieGenres
+    }
+
     fun clearResults() {
         _createResult.value = null
         _updateResult.value = null
