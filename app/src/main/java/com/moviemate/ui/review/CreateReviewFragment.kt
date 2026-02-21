@@ -160,14 +160,22 @@ class CreateReviewFragment : Fragment() {
         reviewViewModel.createResult.observe(viewLifecycleOwner) { result ->
             result?.let {
                 it.onSuccess {
+                    val movieTitle = reviewViewModel.selectedMovie.value?.toString() ?: ""
                     Toast.makeText(requireContext(), R.string.review_posted, Toast.LENGTH_SHORT).show()
                     reviewViewModel.fetchAllReviews()
-                    findNavController().navigateUp()
+                    reviewViewModel.clearResults()
+                    if (movieTitle.isNotEmpty()) {
+                        val action = CreateReviewFragmentDirections
+                            .actionCreateReviewToMovieReviews(movieTitle)
+                        findNavController().navigate(action)
+                    } else {
+                        findNavController().navigateUp()
+                    }
                 }
                 it.onFailure { e ->
                     Toast.makeText(requireContext(), e.message, Toast.LENGTH_SHORT).show()
+                    reviewViewModel.clearResults()
                 }
-                reviewViewModel.clearResults()
             }
         }
 

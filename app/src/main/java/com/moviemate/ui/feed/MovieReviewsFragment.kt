@@ -11,6 +11,7 @@ import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.moviemate.R
 import com.moviemate.data.model.MovieGroup
+import com.moviemate.data.model.Review
 import com.moviemate.databinding.FragmentMovieReviewsBinding
 import com.moviemate.ui.adapter.SimpleReviewAdapter
 import com.moviemate.ui.viewmodel.ReviewViewModel
@@ -24,6 +25,16 @@ class MovieReviewsFragment : Fragment() {
     private val args: MovieReviewsFragmentArgs by navArgs()
     private lateinit var adapter: SimpleReviewAdapter
     private var currentGroup: MovieGroup? = null
+
+    private enum class SortOrder { NEWEST, OLDEST, RATING_LOW, RATING_HIGH }
+    private var currentSort = SortOrder.NEWEST
+
+    private fun sortedReviews(reviews: List<Review>): List<Review> = when (currentSort) {
+        SortOrder.NEWEST     -> reviews.sortedByDescending { it.timestamp }
+        SortOrder.OLDEST     -> reviews.sortedBy { it.timestamp }
+        SortOrder.RATING_LOW -> reviews.sortedBy { it.rating }
+        SortOrder.RATING_HIGH -> reviews.sortedByDescending { it.rating }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -55,6 +66,16 @@ class MovieReviewsFragment : Fragment() {
         binding.reviewsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.reviewsRecyclerView.adapter = adapter
 
+        binding.sortChipGroup.setOnCheckedStateChangeListener { _, checkedIds ->
+            currentSort = when (checkedIds.firstOrNull()) {
+                R.id.chipOldest    -> SortOrder.OLDEST
+                R.id.chipRatingLow -> SortOrder.RATING_LOW
+                R.id.chipRatingHigh -> SortOrder.RATING_HIGH
+                else               -> SortOrder.NEWEST
+            }
+            currentGroup?.let { adapter.submitList(sortedReviews(it.reviews)) }
+        }
+
         reviewViewModel.groupedMovies.observe(viewLifecycleOwner) { groups ->
             val group = groups.find { it.movieTitle == movieTitle } ?: return@observe
             currentGroup = group
@@ -73,7 +94,7 @@ class MovieReviewsFragment : Fragment() {
                     .into(binding.moviePosterImage)
             }
 
-            adapter.submitList(group.reviews)
+            adapter.submitList(sortedReviews(group.reviews))
         }
     }
 
