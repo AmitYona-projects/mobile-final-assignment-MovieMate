@@ -201,40 +201,6 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <ImageView
-            android:id="@+id/reviewImage"
-            android:layout_width="0dp"
-            android:layout_height="180dp"
-            android:layout_marginStart="@dimen/spacing_medium"
-            android:layout_marginTop="@dimen/spacing_medium"
-            android:layout_marginEnd="@dimen/spacing_medium"
-            android:background="@drawable/rounded_card_background"
-            android:contentDescription="Review image"
-            android:scaleType="centerCrop"
-            android:visibility="gone"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/reviewTextLayout" />
-
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/uploadImageButton"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_medium"
-            android:layout_marginTop="@dimen/spacing_medium"
-            android:layout_marginEnd="@dimen/spacing_medium"
-            android:text="@string/upload_image"
-            android:textAllCaps="false"
-            android:textColor="@color/primary"
-            app:cornerRadius="12dp"
-            app:icon="@drawable/ic_camera"
-            app:iconTint="@color/primary"
-            app:strokeColor="@color/primary"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/reviewImage" />
-
         <com.google.android.material.button.MaterialButton
             android:id="@+id/postReviewButton"
             style="@style/RoundedButton"
@@ -249,7 +215,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/uploadImageButton" />
+            app:layout_constraintTop_toBottomOf="@id/reviewTextLayout" />
 
         <ProgressBar
             android:id="@+id/progressBar"

@@ -1,13 +1,11 @@
 package com.moviemate.ui.review
 
-import android.net.Uri
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -15,7 +13,6 @@ import androidx.navigation.fragment.navArgs
 import com.moviemate.R
 import com.moviemate.databinding.FragmentEditReviewBinding
 import com.moviemate.ui.viewmodel.ReviewViewModel
-import com.squareup.picasso.Picasso
 
 class EditReviewFragment : Fragment() {
 
@@ -24,15 +21,6 @@ class EditReviewFragment : Fragment() {
     private val reviewViewModel: ReviewViewModel by activityViewModels()
     private val args: EditReviewFragmentArgs by navArgs()
     private var selectedRating = 0
-    private var selectedImageUri: Uri? = null
-
-    private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let {
-            selectedImageUri = it
-            binding.reviewImage.setImageURI(it)
-            binding.reviewImage.visibility = View.VISIBLE
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -73,10 +61,6 @@ class EditReviewFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        binding.uploadImageButton.setOnClickListener {
-            pickImage.launch("image/*")
-        }
-
         binding.updateReviewButton.setOnClickListener {
             val reviewText = binding.reviewEditText.text.toString().trim()
 
@@ -89,7 +73,7 @@ class EditReviewFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            reviewViewModel.updateReview(args.reviewId, selectedRating, reviewText, selectedImageUri)
+            reviewViewModel.updateReview(args.reviewId, selectedRating, reviewText, null)
         }
     }
 
@@ -103,16 +87,6 @@ class EditReviewFragment : Fragment() {
                     listOf(binding.star1, binding.star2, binding.star3, binding.star4, binding.star5),
                     selectedRating
                 )
-
-                val imageUrl = it.imageUrl.ifEmpty { it.moviePosterUrl }
-                if (imageUrl.isNotEmpty()) {
-                    binding.reviewImage.visibility = View.VISIBLE
-                    Picasso.get()
-                        .load(imageUrl)
-                        .placeholder(R.drawable.rounded_card_background)
-                        .fit().centerCrop()
-                        .into(binding.reviewImage)
-                }
             }
         }
 

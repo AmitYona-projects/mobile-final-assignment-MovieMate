@@ -1,6 +1,5 @@
 package com.moviemate.ui.review
 
-import android.net.Uri
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,7 +9,6 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
@@ -29,15 +27,6 @@ class CreateReviewFragment : Fragment() {
     private val args: CreateReviewFragmentArgs by navArgs()
     private lateinit var movieAdapter: MovieSuggestionAdapter
     private var selectedRating = 0
-    private var selectedImageUri: Uri? = null
-
-    private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
-        uri?.let {
-            selectedImageUri = it
-            binding.reviewImage.setImageURI(it)
-            binding.reviewImage.visibility = View.VISIBLE
-        }
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -111,10 +100,6 @@ class CreateReviewFragment : Fragment() {
             findNavController().navigateUp()
         }
 
-        binding.uploadImageButton.setOnClickListener {
-            pickImage.launch("image/*")
-        }
-
         binding.postReviewButton.setOnClickListener {
             val reviewText = binding.reviewEditText.text.toString().trim()
 
@@ -131,7 +116,7 @@ class CreateReviewFragment : Fragment() {
                 return@setOnClickListener
             }
 
-            reviewViewModel.createReview(selectedRating, reviewText, selectedImageUri)
+            reviewViewModel.createReview(selectedRating, reviewText, null)
         }
     }
 
