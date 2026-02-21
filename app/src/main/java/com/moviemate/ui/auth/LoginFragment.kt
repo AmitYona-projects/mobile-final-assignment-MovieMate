@@ -59,9 +59,12 @@ class LoginFragment : Fragment() {
                     authViewModel.clearResults()
                 }
                 it.onFailure { e ->
-                    Toast.makeText(requireContext(),
-                        e.message ?: getString(R.string.error_login_failed),
-                        Toast.LENGTH_SHORT).show()
+                    val msg = when {
+                        e.message?.contains("badly formatted") == true ->
+                            "The email address format is invalid."
+                        else -> e.message ?: getString(R.string.error_login_failed)
+                    }
+                    Toast.makeText(requireContext(), msg, Toast.LENGTH_SHORT).show()
                     authViewModel.clearResults()
                 }
             }

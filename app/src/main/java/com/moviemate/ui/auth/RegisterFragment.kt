@@ -56,7 +56,7 @@ class RegisterFragment : Fragment() {
             result?.let {
                 it.onSuccess {
                     Toast.makeText(requireContext(),
-                        "Registration successful! Welcome to MovieMate 🎬",
+                        "Welcome to MovieMate! You\'re all set 🎬",
                         Toast.LENGTH_LONG).show()
                     userViewModel.notifyUserLoggedIn()
                     authViewModel.clearResults()
@@ -65,11 +65,11 @@ class RegisterFragment : Fragment() {
                 it.onFailure { e ->
                     val msg = when {
                         e.message?.contains("email address is already in use") == true ->
-                            "This email is already registered. Please login instead."
+                            "This email is already in use. Try signing in instead."
                         e.message?.contains("password is invalid") == true ->
-                            "Password must be at least 6 characters."
+                            "Your password must be at least 6 characters long."
                         e.message?.contains("network") == true ->
-                            "No internet connection. Please check your network."
+                            "No internet connection. Please check your network and try again."
                         else -> e.message ?: getString(R.string.error_register_failed)
                     }
                     Toast.makeText(requireContext(), msg, Toast.LENGTH_LONG).show()
